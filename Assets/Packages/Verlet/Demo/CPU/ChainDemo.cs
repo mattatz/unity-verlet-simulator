@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Verlet.Demo
 {
 
-    public class ChainDemo : DemoBase {
+    public class ChainDemo : CPUDemoBase {
 
         [SerializeField] int count = 20;
         [SerializeField] int iterations = 12;
@@ -18,14 +18,14 @@ namespace Verlet.Demo
         List<GameObject> debuggers;
 
         VerletSimulator simulator;
-        List<VParticle> particles;
+        List<Node> particles;
 
         void Start () {
             debuggers = new List<GameObject>();
-            particles = new List<VParticle>();
+            particles = new List<Node>();
             for(int i = 0; i < count; i++)
             {
-                var p = new VParticle(Vector3.right * i);
+                var p = new Node(Vector3.right * i);
                 particles.Add(p);
 
                 var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -39,7 +39,7 @@ namespace Verlet.Demo
                 {
                     var a = particles[i];
                     var b = particles[i + 1];
-                    var e = new VEdge(a, b);
+                    var e = new Edge(a, b);
                     a.Connect(e);
                     b.Connect(e);
                 }

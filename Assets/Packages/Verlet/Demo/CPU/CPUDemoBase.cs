@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 namespace Verlet.Demo
 {
 
-    public class DemoBase : MonoBehaviour {
+    public class CPUDemoBase : MonoBehaviour {
 
         const string SHADER_PATH = "Hidden/Internal-Colored";
 
@@ -21,12 +21,12 @@ namespace Verlet.Demo
             lineMaterial.SetInt("_ZTest", (int)CompareFunction.Always);
         }
 
-        protected void RenderConnection(List<VParticle> particles, Color color)
+        protected void RenderConnection(List<Node> particles, Color color)
         {
             particles.ForEach(p => RenderConnection(p, color));
         }
 
-        protected void RenderConnection(VParticle p, Color color)
+        protected void RenderConnection(Node p, Color color)
         {
             p.Connection.ForEach(e => {
                 var other = e.Other(p);

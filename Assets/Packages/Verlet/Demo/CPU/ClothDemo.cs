@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Verlet.Demo
 {
 
-    public class ClothDemo : DemoBase {
+    public class ClothDemo : CPUDemoBase {
 
         [SerializeField] int count = 20;
         [SerializeField] int iterations = 12;
@@ -18,11 +18,11 @@ namespace Verlet.Demo
         List<GameObject> debuggers;
 
         VerletSimulator simulator;
-        List<VParticle> particles;
+        List<Node> particles;
 
         void Start () {
             debuggers = new List<GameObject>();
-            particles = new List<VParticle>();
+            particles = new List<Node>();
 
             var offset = -count * 0.5f;
 
@@ -30,7 +30,7 @@ namespace Verlet.Demo
             {
                 for(int x = 0; x < count; x++)
                 {
-                    var p = new VParticle(y * Vector3.forward + (Vector3.right * (x - offset)));
+                    var p = new Node(y * Vector3.forward + (Vector3.right * (x - offset)));
                     particles.Add(p);
 
                     var sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -50,11 +50,11 @@ namespace Verlet.Demo
                         if(x != count - 1)
                         {
                             var right = particles[index + 1];
-                            var re = new VEdge(c, right);
+                            var re = new Edge(c, right);
                             c.Connect(re); right.Connect(re);
                         }
                         var down = particles[index + count];
-                        var de = new VEdge(c, down);
+                        var de = new Edge(c, down);
                         c.Connect(de); down.Connect(de);
                     }
                 } else
@@ -64,7 +64,7 @@ namespace Verlet.Demo
                         var index = y * count + x;
                         var c = particles[index];
                         var right = particles[index + 1];
-                        var re = new VEdge(c, right);
+                        var re = new Edge(c, right);
                         c.Connect(re); right.Connect(re);
                     }
                 }

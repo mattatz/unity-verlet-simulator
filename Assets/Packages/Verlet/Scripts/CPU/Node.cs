@@ -5,18 +5,18 @@ using UnityEngine;
 namespace Verlet
 {
 
-    public class VParticle {
-        public List<VEdge> Connection { get { return connection; } }
+    public class Node {
+        public List<Edge> Connection { get { return connection; } }
 
         public Vector3 position;
         protected Vector3 prev;
 
-        List<VEdge> connection;
+        List<Edge> connection;
         
-        public VParticle(Vector3 p)
+        public Node(Vector3 p)
         {
             position = prev = p;
-            connection = new List<VEdge>();
+            connection = new List<Edge>();
         }
 
         public void Step()
@@ -27,7 +27,7 @@ namespace Verlet
             position = next;
         }
 
-        public void Connect(VEdge e)
+        public void Connect(Edge e)
         {
             connection.Add(e);
         }

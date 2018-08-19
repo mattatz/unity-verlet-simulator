@@ -1,0 +1,17 @@
+﻿#pragma kernel Step
+#pragma kernel Solve
+
+#define THREAD [numthreads(8, 1, 1)]
+
+#include "../Common/Node.cginc"
+#include "../Common/Edge.cginc"
+
+THREAD
+void Step(uint3 id : SV_DispatchThreadID)
+{
+}
+
+THREAD
+void Solve(uint3 id : SV_DispatchThreadID)
+{
+}

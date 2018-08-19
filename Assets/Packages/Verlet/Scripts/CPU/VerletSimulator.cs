@@ -7,9 +7,9 @@ namespace Verlet
 
     public class VerletSimulator {
 
-        List<VParticle> particles;
+        List<Node> particles;
 
-        public VerletSimulator(List<VParticle> particles)
+        public VerletSimulator(List<Node> particles)
         {
             this.particles = particles;
         }
@@ -35,7 +35,7 @@ namespace Verlet
             }
         }
 
-        void Solve(VParticle particle)
+        void Solve(Node particle)
         {
             particle.Connection.ForEach(e =>
             {
@@ -44,7 +44,7 @@ namespace Verlet
             });
         }
 
-        void Solve(VParticle a, VParticle b, float rest)
+        void Solve(Node a, Node b, float rest)
         {
             var delta = a.position - b.position;
             var current = delta.magnitude;

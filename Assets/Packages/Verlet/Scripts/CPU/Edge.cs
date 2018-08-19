@@ -5,28 +5,28 @@ using UnityEngine;
 namespace Verlet
 {
 
-    public class VEdge {
+    public class Edge {
 
         public float Length { get { return length; } }
 
-        VParticle a, b;
+        Node a, b;
         float length;
 
-        public VEdge(VParticle a, VParticle b)
+        public Edge(Node a, Node b)
         {
             this.a = a;
             this.b = b;
             this.length = (a.position - b.position).magnitude;
         }
 
-        public VEdge(VParticle a, VParticle b, float len)
+        public Edge(Node a, Node b, float len)
         {
             this.a = a;
             this.b = b;
             this.length = len;
         }
 
-        public VParticle Other(VParticle p)
+        public Node Other(Node p)
         {
             if(a == p)
             {
