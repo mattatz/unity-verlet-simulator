@@ -6,6 +6,12 @@
 #include "../Common/Node.cginc"
 #include "../Common/Edge.cginc"
 
+StructuredBuffer<Node> _NodesRead;
+RWStructuredBuffer<Node> _Nodes;
+RWStructuredBuffer<Edge> _Edges;
+
+int _NodesCount;
+
 THREAD
 void Step(uint3 id : SV_DispatchThreadID)
 {
@@ -14,4 +20,16 @@ void Step(uint3 id : SV_DispatchThreadID)
 THREAD
 void Solve(uint3 id : SV_DispatchThreadID)
 {
+
+  /*
+  void Solve(Node a, Node b, float rest)
+  {
+      var delta = a.position - b.position;
+      var current = delta.magnitude;
+      var f = (current - rest) / current;
+      a.position -= f * 0.5f * delta;
+      b.position += f * 0.5f * delta;
+  }
+  */
+
 }
