@@ -357,19 +357,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cdb1c6901f3a1d4ba2c5487d83d136c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tentaclesCount: 128
+  tentaclesCount: 1024
   divisionsCount: 32
-  radialSegments: 8
+  radialSegments: 5
   edgeLength: 0.5
   verletCompute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
   tentacleCompute: {fileID: 7200000, guid: 30f6448b03c0417489ea2154bdaa8a20, type: 3}
+  iterations: 8
+  decay: 1
+  gravity: {x: 0, y: 0.25, z: 0}
   render: {fileID: 2100000, guid: f1ed5e76915098845957681c485a2764, type: 2}
   bounds:
     m_Center: {x: 0, y: 0, z: 0}
-    m_Extent: {x: 30, y: 0.5, z: 20}
+    m_Extent: {x: 30, y: 0.5, z: 30}
   mesh: {fileID: 0}
   flowScale: 0.2
-  flowIntensity: 0.015
+  flowIntensity: 0.08
 --- !u!4 &1215012088
 Transform:
   m_ObjectHideFlags: 0

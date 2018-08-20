@@ -5,6 +5,7 @@ struct Node
 {
   float3 position;
   float3 prev;
+  float decay;
   bool stable;
 };
 

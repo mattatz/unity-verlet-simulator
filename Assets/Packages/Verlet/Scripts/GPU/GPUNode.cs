@@ -12,6 +12,7 @@ namespace Verlet
     public struct GPUNode {
         public Vector3 position;
         public Vector3 prev;
+        public float decay;
         public uint stable;
     }
 

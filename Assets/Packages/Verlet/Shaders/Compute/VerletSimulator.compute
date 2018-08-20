@@ -20,6 +20,7 @@ RWStructuredBuffer<Edge> _Edges;
 int _NodesCount, _EdgesCount;
 float _DT;
 
+float _Decay;
 float _Length;
 
 int _FixedID;
@@ -35,7 +36,7 @@ void Step(uint3 id : SV_DispatchThreadID)
   Node n = _Nodes[id.x];
 
   float3 v = n.position - n.prev;
-  float3 next = n.position + v;
+  float3 next = n.position + v * n.decay * _Decay;
   n.prev = n.position;
   n.position = next;
 

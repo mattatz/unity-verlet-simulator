@@ -12,6 +12,9 @@ namespace Verlet.Demo
         [SerializeField] protected float edgeLength = 0.5f;
 
         [SerializeField] protected ComputeShader verletCompute, tentacleCompute;
+        [SerializeField, Range(4, 128)] protected int iterations = 16;
+        [SerializeField, Range(0.5f, 1f)] protected float decay = 1f;
+        [SerializeField] protected Vector3 gravity;
         [SerializeField] protected Material render;
         [SerializeField] protected Bounds bounds;
 
@@ -53,13 +56,16 @@ namespace Verlet.Demo
         protected void Update () {
             var dt = Time.deltaTime;
 
-            simulator.Step(verletCompute);
-            for(int i = 0; i < 16; i++)
+            simulator.Step(verletCompute, decay);
+            for(int i = 0; i < iterations; i++)
             {
-                simulator.Solve(verletCompute);
+                // simulator.Solve(verletCompute);
+                Solve(); // optimized solver
             }
+            simulator.Gravity(verletCompute, gravity, dt);
             Flow(dt);
             Relax(dt);
+            Decay(dt);
 
             Render();
         }
@@ -86,10 +92,10 @@ namespace Verlet.Demo
 
         protected void SetupKernel(int kernel)
         {
-            var nodesCount = simulator.NodeBuffer.count;
             tentacleCompute.SetBuffer(kernel, "_Nodes", simulator.NodeBuffer);
+            tentacleCompute.SetInt("_NodesCount", simulator.NodeBuffer.count);
             tentacleCompute.SetBuffer(kernel, "_Edges", simulator.EdgeBuffer);
-            tentacleCompute.SetInt("_NodesCount", nodesCount);
+            tentacleCompute.SetInt("_EdgesCount", simulator.EdgeBuffer.count);
             tentacleCompute.SetInt("_TentaclesCount", tentaclesCount);
             tentacleCompute.SetFloat("_InvTentaclesCount", 1f / tentaclesCount);
             tentacleCompute.SetInt("_DivisionsCount", divisionsCount);
@@ -128,7 +134,7 @@ namespace Verlet.Demo
             tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(nodesCount / (int)tx) + 1, (int)ty, (int)tz);
         }
 
-        public void Relax(float dt)
+        protected void Relax(float dt)
         {
             var kernel = tentacleCompute.FindKernel("Relax");
             uint tx, ty, tz;
@@ -136,13 +142,26 @@ namespace Verlet.Demo
 
             SetupKernel(kernel);
 
+            tentacleCompute.SetFloat("_EdgeLength", Mathf.Max(0.1f, edgeLength));
             tentacleCompute.SetFloat("_DT", dt);
 
             var edgesCount = simulator.EdgeBuffer.count;
             tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(edgesCount / (int)tx) + 1, (int)ty, (int)tz);
         }
 
-        protected void React(float t)
+        protected void Decay(float dt)
+        {
+            var kernel = tentacleCompute.FindKernel("Decay");
+            uint tx, ty, tz;
+            tentacleCompute.GetKernelThreadGroupSizes(kernel, out tx, out ty, out tz);
+
+            SetupKernel(kernel);
+
+            tentacleCompute.SetFloat("_DT", dt);
+            tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(simulator.NodeBuffer.count / (int)tx) + 1, (int)ty, (int)tz);
+        }
+
+        public void React(float t)
         {
             var kernel = tentacleCompute.FindKernel("React");
             uint tx, ty, tz;
@@ -150,6 +169,21 @@ namespace Verlet.Demo
             SetupKernel(kernel);
 
             tentacleCompute.SetFloat("_Time", t);
+
+            tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(tentaclesCount / (int)tx) + 1, (int)ty, (int)tz);
+        }
+
+        public void Touch(Vector3 point)
+        {
+        }
+
+        protected void Solve()
+        {
+            var kernel = tentacleCompute.FindKernel("Solve");
+            uint tx, ty, tz;
+            tentacleCompute.GetKernelThreadGroupSizes(kernel, out tx, out ty, out tz);
+
+            SetupKernel(kernel);
 
             tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(tentaclesCount / (int)tx) + 1, (int)ty, (int)tz);
         }

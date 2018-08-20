@@ -30,7 +30,7 @@ namespace Verlet
             edgeBuffer.SetData(edges);
         }
 
-        public void Step(ComputeShader compute)
+        public void Step(ComputeShader compute, float decay = 1f)
         {
             var kernel = compute.FindKernel("Step");
             uint tx, ty, tz;
@@ -38,6 +38,8 @@ namespace Verlet
 
             compute.SetBuffer(kernel, "_Nodes", nodeBufferRead);
             compute.SetInt("_NodesCount", nodesCount);
+
+            compute.SetFloat("_Decay", decay);
 
             compute.Dispatch(kernel, Mathf.FloorToInt(nodesCount / (int)tx) + 1, (int)ty, (int)tz);
         }

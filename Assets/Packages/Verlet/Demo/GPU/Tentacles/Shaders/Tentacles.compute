@@ -1,7 +1,11 @@
 ﻿#pragma kernel Init
 #pragma kernel Flow
 #pragma kernel Relax
+#pragma kernel Decay
 #pragma kernel React
+#pragma kernel Touch
+
+#pragma kernel Solve
 
 #define THREAD [numthreads(8, 1, 1)]
 #define DISCARD_NODE if((int)id.x >= _NodesCount) return;
@@ -35,6 +39,40 @@ float3 noise_field(float3 p)
   return cross(n1, n2);
 }
 
+void react(int idx)
+{
+  int offset = idx * (_DivisionsCount - 1);
+  for (int i = 0; i < _DivisionsCount - 1; i++)
+  {
+    int ie = offset + i;
+    Edge e = _Edges[ie];
+    // float t = saturate(i * _InvDivisionsCount);
+    // e.length *= lerp(0.25, 1, 1.0 - t);
+    e.length *= 0.1;
+    _Edges[ie] = e;
+
+    Node na = _Nodes[e.a];
+    Node nb = _Nodes[e.b];
+    na.decay = nb.decay = 0.5;
+    _Nodes[e.a] = na;
+    _Nodes[e.b] = nb;
+  }
+}
+
+float3 compute_delta(Edge e)
+{
+  Node a = _Nodes[e.a];
+  Node b = _Nodes[e.b];
+  float3 delta = a.position - b.position;
+  float current = length(delta);
+  float f = (current - e.length) / current;
+  if (isnan(f) || isinf(f))
+  {
+    return (0).xxx;
+  }
+  return f * delta * 0.5;
+}
+
 THREAD
 void Init (uint3 id : SV_DispatchThreadID)
 {
@@ -65,9 +103,9 @@ void Init (uint3 id : SV_DispatchThreadID)
     (nrand(float2(ft, 7.3), tentacle_id) - 0.5) * offset
   );
   node.stable = division_id <= 0;
+  node.decay = lerp(0.75, 1, ft);
   _Nodes[idx] = node;
 }
-
 
 THREAD
 void Flow (uint3 id : SV_DispatchThreadID)
@@ -89,7 +127,6 @@ void Flow (uint3 id : SV_DispatchThreadID)
     float nz = nrand(float2(tentacle_id * _InvTentaclesCount, 13.87));
 
     float3 v = noise_field(node.position * _FlowScale);
-    v.y = abs(v.y);
     node.position += v * _DT * _FlowIntensity;
   }
 
@@ -103,8 +140,23 @@ void Relax (uint3 id : SV_DispatchThreadID)
 
   int idx = id.x;
   Edge e = _Edges[idx];
-  e.length = lerp(e.length, _EdgeLength, _DT);
+  e.length = lerp(e.length, _EdgeLength, _DT * 0.25);
   _Edges[idx] = e;
+}
+
+THREAD
+void Decay (uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_NODE
+
+  int idx = id.x;
+  float t = idx * _InvDivisionsCount;
+  float ft = frac(t);
+  
+  Node n = _Nodes[idx];
+  float decay = lerp(0.75, 1, ft);
+  n.decay = lerp(n.decay, decay, _DT);
+  _Nodes[idx] = n;
 }
 
 THREAD
@@ -119,14 +171,46 @@ void React (uint3 id : SV_DispatchThreadID)
     return;
   }
 
+  react(idx);
+}
+
+THREAD
+void Touch (uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_TENTACLE
+
+  int idx = id.x;
   int offset = idx * (_DivisionsCount - 1);
   for (int i = 0; i < _DivisionsCount - 1; i++)
   {
     int ie = offset + i;
     Edge e = _Edges[ie];
-    e.length *= 0.1;
-    _Edges[ie] = e;
   }
 
 }
+
+THREAD
+void Solve (uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_TENTACLE
+
+  // optimized solve method for tentacles
+
+  int offset = id.x * (_DivisionsCount - 1);
+  for (int i = 0; i < _DivisionsCount - 1; i++)
+  {
+    int ie = offset + i;
+    Edge e = _Edges[ie];
+    float3 f = compute_delta(e);
+    Node na = _Nodes[e.a];
+    Node nb = _Nodes[e.b];
+    na.position -= f * (!na.stable);
+    nb.position += f * (!nb.stable);
+    _Nodes[e.a] = na;
+    _Nodes[e.b] = nb;
+  }
+
+}
+
+
 
