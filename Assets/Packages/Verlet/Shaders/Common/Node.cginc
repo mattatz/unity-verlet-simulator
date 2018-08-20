@@ -4,7 +4,8 @@
 struct Node
 {
   float3 position;
-  float3 velocity;
+  float3 prev;
+  bool stable;
 };
 
 #endif

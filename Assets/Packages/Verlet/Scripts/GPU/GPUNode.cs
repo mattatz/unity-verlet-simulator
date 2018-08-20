@@ -10,10 +10,9 @@ namespace Verlet
 
     [StructLayout (LayoutKind.Sequential)]
     public struct GPUNode {
-
         public Vector3 position;
-        public Vector3 velocity;
-
+        public Vector3 prev;
+        public uint stable;
     }
 
 }

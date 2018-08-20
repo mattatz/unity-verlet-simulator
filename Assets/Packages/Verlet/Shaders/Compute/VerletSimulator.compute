@@ -1,7 +1,15 @@
 ﻿#pragma kernel Step
 #pragma kernel Solve
 
+#pragma kernel FixOne 
+#pragma kernel Unfix
+
+#pragma kernel UpdateLength
+#pragma kernel Gravity
+
 #define THREAD [numthreads(8, 1, 1)]
+#define DISCARD_NODE if((int)id.x >= _NodesCount) return;
+#define DISCARD_EDGE if((int)id.x >= _EdgesCount) return;
 
 #include "../Common/Node.cginc"
 #include "../Common/Edge.cginc"
@@ -9,27 +17,117 @@
 StructuredBuffer<Node> _NodesRead;
 RWStructuredBuffer<Node> _Nodes;
 RWStructuredBuffer<Edge> _Edges;
+int _NodesCount, _EdgesCount;
+float _DT;
 
-int _NodesCount;
+float _Length;
+
+int _FixedID;
+float3 _FixedPoint;
+
+float3 _Gravity;
 
 THREAD
 void Step(uint3 id : SV_DispatchThreadID)
 {
+  DISCARD_NODE
+
+  Node n = _Nodes[id.x];
+
+  float3 v = n.position - n.prev;
+  float3 next = n.position + v;
+  n.prev = n.position;
+  n.position = next;
+
+  _Nodes[id.x] = n;
+}
+
+float3 compute_delta(Edge e)
+{
+  Node a = _NodesRead[e.a];
+  Node b = _NodesRead[e.b];
+  float3 delta = a.position - b.position;
+  float current = length(delta);
+  float f = (current - e.length) / current;
+  if (isnan(f) || isinf(f))
+  {
+    return (0).xxx;
+  }
+  return f * delta * 0.5;
 }
 
 THREAD
 void Solve(uint3 id : SV_DispatchThreadID)
 {
+  DISCARD_NODE
 
-  /*
-  void Solve(Node a, Node b, float rest)
+  int idx = id.x;
+
+  Node n = _NodesRead[idx];
+
+  if (!n.stable)
   {
-      var delta = a.position - b.position;
-      var current = delta.magnitude;
-      var f = (current - rest) / current;
-      a.position -= f * 0.5f * delta;
-      b.position += f * 0.5f * delta;
+    for (int i = 0; i < _EdgesCount; i++)
+    {
+      Edge e = _Edges[i];
+      if (e.a == idx)
+      {
+        n.position -= compute_delta(e);
+      }
+      else if (e.b == idx)
+      {
+        n.position += compute_delta(e);
+      }
+    }
   }
-  */
 
+  _Nodes[idx] = n;
+}
+
+THREAD
+void FixOne(uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_NODE
+
+  int idx = id.x;
+  Node n = _Nodes[idx];
+  bool stable = idx == _FixedID;
+  n.position = lerp(n.position, _FixedPoint, stable);
+  n.stable = n.stable || stable;
+  _Nodes[idx] = n;
+}
+
+THREAD
+void Unfix(uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_NODE
+
+  int idx = id.x;
+  Node n = _Nodes[idx];
+  n.stable = false;
+  _Nodes[idx] = n;
+}
+
+THREAD
+void UpdateLength(uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_EDGE
+
+  int idx = id.x;
+  Edge e = _Edges[idx];
+  e.length = _Length;
+  _Edges[idx] = e;
+}
+
+THREAD
+void Gravity(uint3 id : SV_DispatchThreadID)
+{
+  DISCARD_NODE
+
+  int idx = id.x;
+  Node n = _Nodes[idx];
+
+  n.position += _Gravity * _DT * (!n.stable);
+
+  _Nodes[idx] = n;
 }

@@ -22,45 +22,6 @@ float3 nrand3(float2 seed)
     return float3(frac(t * 1e4), frac(t * 1e6), frac(t * 1e5));
 }
 
-float3 random_orth(float2 seed)
-{
-	// float u = (nrand(seed) + 1.0) * 0.5;
-    float u = nrand(seed);
-
-    float3 axis;
-
-    if (u < 0.166)
-        axis = float3(0, 0, 1);
-    else if (u < 0.332)
-        axis = float3(0, 0, -1);
-    else if (u < 0.498)
-        axis = float3(0, 1, 0);
-    else if (u < 0.664)
-        axis = float3(0, -1, 0);
-    else if (u < 0.83)
-        axis = float3(-1, 0, 0);
-    else
-        axis = float3(1, 0, 0);
-
-    return axis;
-}
-
-float3 random_positive_orth(float2 seed)
-{
-    float u = (nrand(seed) + 1) * 0.5;
-
-    float3 axis;
-
-    if (u < 0.333)
-        axis = float3(0, 0, 1);
-    else if (u < 0.666)
-        axis = float3(0, 1, 0);
-    else
-        axis = float3(1, 0, 0);
-
-    return axis;
-}
-
 // Uniformaly distributed points on a unit sphere
 // http://mathworld.wolfram.com/SpherePointPicking.html
 float3 random_point_on_sphere(float2 uv)

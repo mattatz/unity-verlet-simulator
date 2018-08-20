@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 5cdb1c6901f3a1d4ba2c5487d83d136c
+timeCreated: 1534750639
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - verletCompute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
+  - tentacleCompute: {instanceID: 0}
+  - render: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

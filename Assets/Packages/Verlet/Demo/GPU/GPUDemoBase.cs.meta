@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 2c41df427f809aa49a4dc5655b2261e1
+timeCreated: 1534664597
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - compute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
+  - nodeMaterial: {fileID: 2100000, guid: a923efef566bfd54a9b584bc078c9ce9, type: 2}
+  - edgeMaterial: {fileID: 2100000, guid: 4b3768d0b9ce5e74ab50844337810278, type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

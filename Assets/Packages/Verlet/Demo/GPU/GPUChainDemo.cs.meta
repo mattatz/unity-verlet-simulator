@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: ea7bdb58929be3643ae51c6e1ce94086
+timeCreated: 1534746953
+licenseType: Pro
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - compute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
+  - nodeMaterial: {fileID: 2100000, guid: a923efef566bfd54a9b584bc078c9ce9, type: 2}
+  - edgeMaterial: {fileID: 2100000, guid: 4b3768d0b9ce5e74ab50844337810278, type: 2}
+  - nodeMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

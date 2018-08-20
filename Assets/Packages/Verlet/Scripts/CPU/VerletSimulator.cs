@@ -13,7 +13,6 @@ namespace Verlet
         {
             this.particles = particles;
         }
-
        
         public void Simulate (int iterations, float dt) {
             Step();
