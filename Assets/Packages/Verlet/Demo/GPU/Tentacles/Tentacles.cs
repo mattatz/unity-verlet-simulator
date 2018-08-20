@@ -15,13 +15,14 @@ namespace Verlet.Demo
         [SerializeField, Range(4, 128)] protected int iterations = 16;
         [SerializeField, Range(0.5f, 1f)] protected float decay = 1f;
         [SerializeField] protected Vector3 gravity;
-        [SerializeField] protected Material render;
+        [SerializeField] protected Material tipMaterial, tentacleMaterial;
         [SerializeField] protected Bounds bounds;
 
         protected GPUVerletSimulator simulator;
 
-        [SerializeField] protected Mesh mesh;
-        protected ComputeBuffer argsBuffer;
+        [SerializeField] protected Mesh tipMesh;
+        protected Mesh tentacleMesh;
+        protected ComputeBuffer tipArgsBuffer, tentacleArgsBuffer;
 
         [SerializeField] protected float flowScale = 0.5f, flowIntensity = 0.25f;
 
@@ -42,13 +43,19 @@ namespace Verlet.Demo
 
             simulator = new GPUVerletSimulator(nodes, edges.ToArray());
 
-            mesh = Build(divisionsCount, radialSegments);
+            tentacleMesh = Build(divisionsCount, radialSegments);
 
             uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
-            args[0] = mesh.GetIndexCount(0);
+
+            args[0] = tipMesh.GetIndexCount(0);
             args[1] = (uint)tentaclesCount;
-            argsBuffer = new ComputeBuffer(1, sizeof(uint) * args.Length, ComputeBufferType.IndirectArguments);
-            argsBuffer.SetData(args);
+            tipArgsBuffer = new ComputeBuffer(1, sizeof(uint) * args.Length, ComputeBufferType.IndirectArguments);
+            tipArgsBuffer.SetData(args);
+
+            args[0] = tentacleMesh.GetIndexCount(0);
+            args[1] = (uint)tentaclesCount;
+            tentacleArgsBuffer = new ComputeBuffer(1, sizeof(uint) * args.Length, ComputeBufferType.IndirectArguments);
+            tentacleArgsBuffer.SetData(args);
 
             Init();
         }
@@ -67,25 +74,48 @@ namespace Verlet.Demo
             Relax(dt);
             Decay(dt);
 
+            // if(Input.GetMouseButton(0))
+            {
+                Touch(Input.mousePosition);
+            }
+
             Render();
         }
 
         protected void Render()
         {
-            render.SetMatrix("_World2Local", transform.worldToLocalMatrix);
-            render.SetMatrix("_Local2World", transform.localToWorldMatrix);
+            RenderTentacles();
+            RenderTips();
+        }
 
-            render.SetBuffer("_Nodes", simulator.NodeBuffer);
-            render.SetInt("_TentaclesCount", tentaclesCount);
-            render.SetInt("_DivisionsCount", divisionsCount);
-            render.SetFloat("_InvTubularCount", 1f / divisionsCount);
-            render.SetFloat("_InvRadialsCount", 1f / radialSegments);
+        protected void RenderTentacles()
+        {
+            tentacleMaterial.SetMatrix("_World2Local", transform.worldToLocalMatrix);
+            tentacleMaterial.SetMatrix("_Local2World", transform.localToWorldMatrix);
+
+            tentacleMaterial.SetBuffer("_Nodes", simulator.NodeBuffer);
+            tentacleMaterial.SetInt("_TentaclesCount", tentaclesCount);
+            tentacleMaterial.SetInt("_DivisionsCount", divisionsCount);
+            tentacleMaterial.SetFloat("_InvTubularCount", 1f / divisionsCount);
+            tentacleMaterial.SetFloat("_InvRadialsCount", 1f / radialSegments);
 
             var cameraDir = Camera.main.transform.forward;
             var localCameraDir = transform.InverseTransformDirection(cameraDir);
-            render.SetVector("_LocalCameraDirection", localCameraDir);
+            tentacleMaterial.SetVector("_LocalCameraDirection", localCameraDir);
 
-            Graphics.DrawMeshInstancedIndirect(mesh, 0, render, new Bounds(Vector3.zero, Vector3.one * 100f), argsBuffer);
+            Graphics.DrawMeshInstancedIndirect(tentacleMesh, 0, tentacleMaterial, new Bounds(Vector3.zero, Vector3.one * 100f), tentacleArgsBuffer);
+        }
+
+        protected void RenderTips()
+        {
+            tipMaterial.SetMatrix("_World2Local", transform.worldToLocalMatrix);
+            tipMaterial.SetMatrix("_Local2World", transform.localToWorldMatrix);
+
+            tipMaterial.SetBuffer("_Nodes", simulator.NodeBuffer);
+            tipMaterial.SetInt("_TentaclesCount", tentaclesCount);
+            tipMaterial.SetInt("_DivisionsCount", divisionsCount);
+
+            Graphics.DrawMeshInstancedIndirect(tipMesh, 0, tipMaterial, new Bounds(Vector3.zero, Vector3.one * 100f), tipArgsBuffer);
         }
 
         #region Kernels
@@ -173,8 +203,26 @@ namespace Verlet.Demo
             tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(tentaclesCount / (int)tx) + 1, (int)ty, (int)tz);
         }
 
-        public void Touch(Vector3 point)
+        public void Touch(Vector2 screen, float depth = 10f)
         {
+            var kernel = tentacleCompute.FindKernel("Touch");
+            uint tx, ty, tz;
+            tentacleCompute.GetKernelThreadGroupSizes(kernel, out tx, out ty, out tz);
+            SetupKernel(kernel);
+
+            var cam = Camera.main;
+
+            var world = cam.ScreenToWorldPoint(new Vector3(screen.x, screen.y, cam.nearClipPlane + depth));
+            var localScr = transform.InverseTransformPoint(world);
+
+            var p = cam.projectionMatrix;
+            var v = cam.worldToCameraMatrix;
+            var m = transform.localToWorldMatrix;
+            tentacleCompute.SetMatrix("_Mat", p * v * m);
+            tentacleCompute.SetVector("_Point", localScr);
+            tentacleCompute.SetFloat("_Distance", 0.1f);
+
+            tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(tentaclesCount / (int)tx) + 1, (int)ty, (int)tz);
         }
 
         protected void Solve()
@@ -246,7 +294,8 @@ namespace Verlet.Demo
         protected void OnDestroy()
         {
             simulator.Dispose();
-            argsBuffer.Dispose();
+            tipArgsBuffer.Dispose();
+            tentacleArgsBuffer.Dispose();
         }
 
         protected void OnDrawGizmos()

@@ -1,10 +1,10 @@
-﻿Shader "Verlet/Demo/Tentacles"
+﻿Shader "Verlet/Demo/Tips"
 {
 
 	Properties
 	{
     _Color ("Color", Color) = (1, 1, 1, 1)
-    _Thickness ("Thickness", Float) = 0.25
+    _Size ("Size", Float) = 0.5
 	}
 
   CGINCLUDE
@@ -30,15 +30,13 @@
   };
 
   float4 _Color;
-  float _Thickness;
+  float _Size;
 
   StructuredBuffer<Node> _Nodes;
 
   int _TentaclesCount, _DivisionsCount;
-  float _InvTubularCount, _InvRadialsCount;
 
   float4x4 _World2Local, _Local2World;
-  float3 _LocalCameraDirection;
 
   void setup() {
     unity_ObjectToWorld = _Local2World;
@@ -51,47 +49,12 @@
     UNITY_SETUP_INSTANCE_ID(IN);
     UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
 
-    float t = IN.vid * _InvRadialsCount;
-    float ft = frac(t);
-    int division_id = IN.uv.y * _DivisionsCount;
+    int idx = iid * _DivisionsCount + _DivisionsCount - 1;
+    float3 tip = _Nodes[idx].position;
 
-    int idx = iid * _DivisionsCount + division_id;
-    float3 cur = _Nodes[idx].position;
-
-    float3 up = (0).xxx;
-    float3 right = (0).xxx;
-    if (division_id == 0) {
-      // head
-      float3 prev = _Nodes[idx + 1].position.xyz;
-      up = normalize(cur - prev);
-      right = normalize(cross(up, _LocalCameraDirection)) * 0.5 * _Thickness;
-    }
-    else if (division_id == _DivisionsCount - 1) {
-      // tail
-      float3 next = _Nodes[idx - 1].position.xyz;
-      up = normalize(next - cur);
-      right = normalize(cross(up, _LocalCameraDirection)) * 0.5 * _Thickness;
-    }
-    else {
-      // middle
-      float3 prev = _Nodes[idx + 1].position.xyz;
-      float3 next = _Nodes[idx - 1].position.xyz;
-      float3 dir10 = normalize(cur - prev);
-      float3 dir21 = normalize(next - cur);
-      up = ((dir10 + dir21) * 0.5f);
-      float d = saturate((dot(dir10, dir21) + 1.0) * 0.5);
-      right = normalize(cross(up, _LocalCameraDirection)) * lerp(1, 0.5, d) * _Thickness;
-    }
-
-    float u = IN.uv.x * UNITY_PI * 2;
-
-    float3 binormal = cross(up, right);
-    // float3 offset = right * cos(u) + binormal * sin(u);
-    float3 offset = right * cos(u) - binormal * sin(u);
-    float3 position = cur.xyz + offset;
-
+    float3 position = tip.xyz + IN.vertex.xyz * _Size;
     OUT.position = UnityObjectToClipPos(float4(position, 1));
-    OUT.normal = UnityObjectToWorldNormal(normalize(offset));
+    OUT.normal = UnityObjectToWorldNormal(IN.normal);
     OUT.uv = IN.uv;
     return OUT;
   }

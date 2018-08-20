@@ -219,7 +219,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.069204144, g: 0.08804305, b: 0.11764705, a: 0}
+  m_BackGroundColor: {r: 0.07720588, g: 0.09579248, b: 0.125, a: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -252,13 +252,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 192284577}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalRotation: {x: 0, y: 0.99922633, z: 0.039329566, w: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -4.5080004, y: 180, z: 0}
 --- !u!1 &238043503
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,7 +290,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 2fa3235d7216e3e47ad568f2f0595107, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -324,7 +324,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 238043503}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -9, z: 30}
+  m_LocalPosition: {x: 0, y: -9, z: 0}
   m_LocalScale: {x: 8, y: 1, z: 8}
   m_Children: []
   m_Father: {fileID: 0}
@@ -357,20 +357,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cdb1c6901f3a1d4ba2c5487d83d136c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tentaclesCount: 1024
+  tentaclesCount: 2048
   divisionsCount: 32
   radialSegments: 5
   edgeLength: 0.5
   verletCompute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
   tentacleCompute: {fileID: 7200000, guid: 30f6448b03c0417489ea2154bdaa8a20, type: 3}
-  iterations: 8
+  iterations: 4
   decay: 1
   gravity: {x: 0, y: 0.25, z: 0}
-  render: {fileID: 2100000, guid: f1ed5e76915098845957681c485a2764, type: 2}
+  tipMaterial: {fileID: 2100000, guid: 6ea4b19b1efb1954ebf80970a5b572a8, type: 2}
+  tentacleMaterial: {fileID: 2100000, guid: f1ed5e76915098845957681c485a2764, type: 2}
   bounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 30, y: 0.5, z: 30}
-  mesh: {fileID: 0}
+  tipMesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
   flowScale: 0.2
   flowIntensity: 0.08
 --- !u!4 &1215012088
@@ -380,7 +381,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1215012086}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -10, z: 30}
+  m_LocalPosition: {x: 0, y: -10, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
