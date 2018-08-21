@@ -189,6 +189,7 @@ GameObject:
   - component: {fileID: 192284580}
   - component: {fileID: 192284579}
   - component: {fileID: 192284578}
+  - component: {fileID: 192284582}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -235,12 +236,12 @@ Camera:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_RenderingPath: -1
+  m_RenderingPath: 3
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
-  m_AllowMSAA: 1
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -252,13 +253,25 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 192284577}
-  m_LocalRotation: {x: 0, y: 0.99922633, z: 0.039329566, w: 0}
-  m_LocalPosition: {x: 0, y: 0.8, z: 40}
+  m_LocalRotation: {x: 0.2116072, y: -0, z: -0, w: 0.9773549}
+  m_LocalPosition: {x: 0, y: 9.6, z: -37.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: -4.5080004, y: 180, z: 0}
+  m_LocalEulerAnglesHint: {x: 24.433, y: 0, z: 0}
+--- !u!114 &192284582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 192284577}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff26db721962cdf4a8edcdfa9a767d2a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  profile: {fileID: 11400000, guid: ab5e617caba42fc4dba8ab0cdd493523, type: 2}
 --- !u!1 &238043503
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,7 +338,7 @@ Transform:
   m_GameObject: {fileID: 238043503}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -9, z: 0}
-  m_LocalScale: {x: 8, y: 1, z: 8}
+  m_LocalScale: {x: 7, y: 1, z: 8}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -357,9 +370,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5cdb1c6901f3a1d4ba2c5487d83d136c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tentaclesCount: 2048
+  tentaclesCount: 4096
   divisionsCount: 32
-  radialSegments: 5
+  radialSegments: 4
   edgeLength: 0.5
   verletCompute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
   tentacleCompute: {fileID: 7200000, guid: 30f6448b03c0417489ea2154bdaa8a20, type: 3}

@@ -12,7 +12,7 @@ namespace Verlet.Demo
         [SerializeField] protected float edgeLength = 0.5f;
 
         [SerializeField] protected ComputeShader verletCompute, tentacleCompute;
-        [SerializeField, Range(4, 128)] protected int iterations = 16;
+        [SerializeField, Range(2, 16)] protected int iterations = 4;
         [SerializeField, Range(0.5f, 1f)] protected float decay = 1f;
         [SerializeField] protected Vector3 gravity;
         [SerializeField] protected Material tipMaterial, tentacleMaterial;
@@ -103,7 +103,7 @@ namespace Verlet.Demo
             var localCameraDir = transform.InverseTransformDirection(cameraDir);
             tentacleMaterial.SetVector("_LocalCameraDirection", localCameraDir);
 
-            Graphics.DrawMeshInstancedIndirect(tentacleMesh, 0, tentacleMaterial, new Bounds(Vector3.zero, Vector3.one * 100f), tentacleArgsBuffer);
+            Graphics.DrawMeshInstancedIndirect(tentacleMesh, 0, tentacleMaterial, new Bounds(Vector3.zero, Vector3.one * 100f), tentacleArgsBuffer, 0, null, UnityEngine.Rendering.ShadowCastingMode.On, true);
         }
 
         protected void RenderTips()
