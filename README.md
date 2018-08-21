@@ -11,6 +11,8 @@ GPU-based simple verlet integration simulator for Unity.
 
 ## Usage (chain structure example)
 
+```cs
+
 [SerializeField] ComputeShader compute; // GPUVerletSimulator.compute
 GPUVerletSimulator simulator;
 
@@ -53,6 +55,8 @@ void Update() {
         simulator.Solve(compute);
     }
 }
+
+```
 
 ## Sources
 
