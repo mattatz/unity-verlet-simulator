@@ -34,7 +34,7 @@ float _Time, _DT;
 
 float3 _Point;
 float _Distance;
-float4x4 _Mat;
+float4x4 _MVP;
 
 float3 noise_field(float3 p)
 {
@@ -191,12 +191,11 @@ void Touch (uint3 id : SV_DispatchThreadID)
     Edge e = _Edges[ie];
     Node n = _Nodes[e.b];
 
-    float3 np = mul(_Mat, float4(n.position.xyz, 1));
-    float3 pp = mul(_Mat, float4(_Point.xyz, 1));
+    float3 np = mul(_MVP, float4(n.position.xyz, 1)).xyz;
 
     float d = distance(
       np.xy / np.z,
-      pp.xy / pp.z
+      _Point.xy
     );
     if (d <= _Distance)
     {

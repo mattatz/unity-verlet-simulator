@@ -242,7 +242,8 @@ MonoBehaviour:
   drawEdge: 1
   nodesCount: 32
   edgeLength: 0.25
-  iterations: 32
+  iterations: 16
+  decay: 0.945
 --- !u!1 &1407848459
 GameObject:
   m_ObjectHideFlags: 0

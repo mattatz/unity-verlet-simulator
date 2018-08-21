@@ -75,19 +75,6 @@ namespace Verlet
             compute.Dispatch(kernel, Mathf.FloorToInt(nodesCount / (int)tx) + 1, (int)ty, (int)tz);
         }
 
-        public void UpdateLength(ComputeShader compute, float length)
-        {
-            var kernel = compute.FindKernel("UpdateLength");
-            uint tx, ty, tz;
-            compute.GetKernelThreadGroupSizes(kernel, out tx, out ty, out tz);
-
-            compute.SetBuffer(kernel, "_Edges", edgeBuffer);
-            compute.SetInt("_EdgesCount", edgesCount);
-            compute.SetFloat("_Length", length);
-
-            compute.Dispatch(kernel, Mathf.FloorToInt(edgesCount / (int)tx) + 1, (int)ty, (int)tz);
-        }
-
         public void Gravity(ComputeShader compute, Vector3 gravity, float dt)
         {
             var kernel = compute.FindKernel("Gravity");

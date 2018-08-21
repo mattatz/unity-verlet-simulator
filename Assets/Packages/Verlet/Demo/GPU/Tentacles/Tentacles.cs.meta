@@ -7,8 +7,9 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - verletCompute: {fileID: 7200000, guid: 20d0452029922b14d9fa2a08cc5dc2df, type: 3}
-  - tentacleCompute: {instanceID: 0}
-  - render: {instanceID: 0}
+  - tentacleCompute: {fileID: 7200000, guid: 30f6448b03c0417489ea2154bdaa8a20, type: 3}
+  - tipMaterial: {fileID: 2100000, guid: 6ea4b19b1efb1954ebf80970a5b572a8, type: 2}
+  - tentacleMaterial: {fileID: 2100000, guid: f1ed5e76915098845957681c485a2764, type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

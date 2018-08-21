@@ -17,6 +17,7 @@ namespace Verlet.Demo
                 var n = nodes[i];
                 var p = new Vector3(Random.value - 0.5f, i * edgeLength, Random.value - 0.5f);
                 n.position = n.prev = p;
+                n.decay = 1f;
                 nodes[i] = n;
             }
 

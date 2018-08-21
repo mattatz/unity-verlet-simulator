@@ -18,11 +18,12 @@ namespace Verlet.Demo
 
         [SerializeField] protected int nodesCount = 128;
         [SerializeField, Range(0.01f, 1f)] protected float edgeLength = 0.1f;
-        protected float _edgeLength;
 
         protected int edgesCount;
 
         [SerializeField, Range(1, 32)] protected int iterations = 8;
+        [SerializeField, Range(0.85f, 1f)] protected float decay = 1f;
+        [SerializeField] protected Vector3 gravity = new Vector3(0f, -1f, 0f);
         protected GPUVerletSimulator simulator;
 
         protected ComputeBuffer drawNodeArgsBuffer;
@@ -32,8 +33,6 @@ namespace Verlet.Demo
         protected uint[] drawEdgeArgs = new uint[5] { 0, 0, 0, 0, 0 };
 
         protected virtual void Start () {
-            _edgeLength = edgeLength;
-
             edgeMesh = BuildLine();
             SetupArguments();
         }
@@ -52,13 +51,8 @@ namespace Verlet.Demo
         }
         
         protected virtual void Update () {
-            if(_edgeLength != edgeLength)
-            {
-                simulator.UpdateLength(compute, edgeLength);
-                _edgeLength = edgeLength;
-            }
-            simulator.Gravity(compute, new Vector3(0f, -1f, 0f), Time.deltaTime);
-            simulator.Step(compute);
+            simulator.Gravity(compute, gravity, Time.deltaTime);
+            simulator.Step(compute, decay);
             for(int i = 0; i < iterations; i++)
             {
                 simulator.Solve(compute);

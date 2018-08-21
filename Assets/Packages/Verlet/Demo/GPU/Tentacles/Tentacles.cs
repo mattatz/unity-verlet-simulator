@@ -20,8 +20,7 @@ namespace Verlet.Demo
 
         protected GPUVerletSimulator simulator;
 
-        [SerializeField] protected Mesh tipMesh;
-        protected Mesh tentacleMesh;
+        protected Mesh tipMesh, tentacleMesh;
         protected ComputeBuffer tipArgsBuffer, tentacleArgsBuffer;
 
         [SerializeField] protected float flowScale = 0.5f, flowIntensity = 0.25f;
@@ -43,7 +42,8 @@ namespace Verlet.Demo
 
             simulator = new GPUVerletSimulator(nodes, edges.ToArray());
 
-            tentacleMesh = Build(divisionsCount, radialSegments);
+            tipMesh = BuildTipMesh(1f);
+            tentacleMesh = BuildTentacleMesh(divisionsCount, radialSegments);
 
             uint[] args = new uint[5] { 0, 0, 0, 0, 0 };
 
@@ -212,14 +212,17 @@ namespace Verlet.Demo
 
             var cam = Camera.main;
 
-            var world = cam.ScreenToWorldPoint(new Vector3(screen.x, screen.y, cam.nearClipPlane + depth));
-            var localScr = transform.InverseTransformPoint(world);
-
             var p = cam.projectionMatrix;
             var v = cam.worldToCameraMatrix;
             var m = transform.localToWorldMatrix;
-            tentacleCompute.SetMatrix("_Mat", p * v * m);
-            tentacleCompute.SetVector("_Point", localScr);
+            var mvp = p * v * m;
+
+            var world = cam.ScreenToWorldPoint(new Vector3(screen.x, screen.y, cam.nearClipPlane + depth));
+            var localScr = transform.InverseTransformPoint(world);
+            var projected = mvp.MultiplyPoint(localScr);
+            
+            tentacleCompute.SetMatrix("_MVP", mvp);
+            tentacleCompute.SetVector("_Point", new Vector2(projected.x / projected.z, projected.y / projected.z));
             tentacleCompute.SetFloat("_Distance", 0.1f);
 
             tentacleCompute.Dispatch(kernel, Mathf.FloorToInt(tentaclesCount / (int)tx) + 1, (int)ty, (int)tz);
@@ -238,7 +241,7 @@ namespace Verlet.Demo
 
         #endregion
 
-        protected Mesh Build(int tubularSegments, int radialSegments)
+        protected Mesh BuildTentacleMesh(int tubularSegments, int radialSegments)
         {
             var mesh = new Mesh();
 
@@ -288,6 +291,87 @@ namespace Verlet.Demo
             mesh.SetIndices(indices.ToArray(), MeshTopology.Triangles, 0);
 
             mesh.hideFlags = HideFlags.DontSave;
+            return mesh;
+        }
+
+        protected Mesh BuildTipMesh(float radius = 1f, int widthSegments = 8, int heightSegments = 6, float phiStart = 0f, float phiLength = Mathf.PI * 2f, float thetaStart = 0f, float thetaLength = Mathf.PI)
+        {
+            var mesh = new Mesh();
+
+            widthSegments = Mathf.Max(3, widthSegments);
+            heightSegments = Mathf.Max(2, heightSegments);
+
+            var thetaEnd = thetaStart + thetaLength;
+
+            var index = 0;
+            List<int[]> grid = new List<int[]>();
+
+            var indices = new List<int>();
+            var vertices = new List<Vector3>();
+            var uvs = new List<Vector2>();
+
+            int ix, iy;
+            for (iy = 0; iy <= heightSegments; iy++)
+            {
+                int[] verticesRow = new int[widthSegments + 1];
+
+                var v = 1f * iy / heightSegments;
+
+                for (ix = 0; ix <= widthSegments; ix++)
+                {
+                    var u = 1f * ix / widthSegments;
+
+                    // vertex
+                    var vertex = Vector3.zero;
+                    vertex.x = -radius * Mathf.Cos(phiStart + u * phiLength) * Mathf.Sin(thetaStart + v * thetaLength);
+                    vertex.y = radius * Mathf.Cos(thetaStart + v * thetaLength);
+                    vertex.z = radius * Mathf.Sin(phiStart + u * phiLength) * Mathf.Sin(thetaStart + v * thetaLength);
+                    vertices.Add(vertex);
+
+                    // uv
+                    uvs.Add(new Vector2(u, 1f - v));
+
+                    verticesRow[ix] = index++;
+                }
+
+                grid.Add(verticesRow);
+            }
+
+            // indices
+            for (iy = 0; iy < heightSegments; iy++)
+            {
+                for (ix = 0; ix < widthSegments; ix++)
+                {
+                    var a = grid[iy][ix + 1];
+                    var b = grid[iy][ix];
+                    var c = grid[iy + 1][ix];
+                    var d = grid[iy + 1][ix + 1];
+
+                    if (iy != 0 || thetaStart > 0)
+                    {
+                        indices.Add(a);
+                        indices.Add(b);
+                        indices.Add(d);
+                    }
+
+                    if (iy != heightSegments - 1 || thetaEnd < Mathf.PI)
+                    {
+                        indices.Add(b);
+                        indices.Add(c);
+                        indices.Add(d);
+                    }
+                }
+            }
+
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+            mesh.SetIndices(indices.ToArray(), MeshTopology.Triangles, 0);
+            mesh.RecalculateNormals();
+            mesh.RecalculateTangents();
+            mesh.RecalculateBounds();
+
+            mesh.hideFlags = HideFlags.DontSave;
+
             return mesh;
         }
 

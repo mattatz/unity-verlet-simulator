@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "com.unity.package-manager-ui": "1.9.11",
+    "com.unity.modules.imgui": "1.0.0"
+  }
+}

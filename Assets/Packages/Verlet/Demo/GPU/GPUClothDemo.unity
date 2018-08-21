@@ -243,6 +243,8 @@ MonoBehaviour:
   nodesCount: 32
   edgeLength: 0.3
   iterations: 16
+  decay: 0.996
+  gravity: {x: 0, y: -0.5, z: 0}
   rows: 64
   columns: 16
 --- !u!1 &1407848459

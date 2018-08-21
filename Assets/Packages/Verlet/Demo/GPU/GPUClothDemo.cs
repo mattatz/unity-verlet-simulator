@@ -8,6 +8,7 @@ namespace Verlet.Demo
     public class GPUClothDemo : GPUDemoBase {
 
         [SerializeField, Range(8, 256)] protected int rows = 128, columns = 64;
+        [SerializeField, Range(0f, 2f)] protected float windSpeed = 0.5f, windIntensity = 0.5f;
 
         protected override void Start()
         {
@@ -29,6 +30,7 @@ namespace Verlet.Demo
                     n.position = n.prev = 
                         (Vector3.forward * y * edgeLength) + 
                         (Vector3.right * (x - hCols) * edgeLength);
+                    n.decay = 1f;
                     n.stable = (uint)(stable ? 1 : 0);
                     nodes[idx] = n;
                 }
@@ -72,15 +74,7 @@ namespace Verlet.Demo
         {
             base.Update();
 
-            // if(Input.GetMouseButton(0))
-            /*
-            {
-                var m = Input.mousePosition;
-                m = Camera.main.ScreenToWorldPoint(new Vector3(m.x, m.y, Camera.main.nearClipPlane + 10f));
-                simulator.FixOne(compute, 0, m);
-            }
-            */
-
+            gravity.z = Mathf.PerlinNoise(Time.timeSinceLevelLoad * windSpeed, 0f) * windIntensity;
         }
 
     }

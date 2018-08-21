@@ -4,7 +4,6 @@
 #pragma kernel FixOne 
 #pragma kernel Unfix
 
-#pragma kernel UpdateLength
 #pragma kernel Gravity
 
 #define THREAD [numthreads(8, 1, 1)]
@@ -107,17 +106,6 @@ void Unfix(uint3 id : SV_DispatchThreadID)
   Node n = _Nodes[idx];
   n.stable = false;
   _Nodes[idx] = n;
-}
-
-THREAD
-void UpdateLength(uint3 id : SV_DispatchThreadID)
-{
-  DISCARD_EDGE
-
-  int idx = id.x;
-  Edge e = _Edges[idx];
-  e.length = _Length;
-  _Edges[idx] = e;
 }
 
 THREAD
